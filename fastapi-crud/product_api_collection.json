@@ -1,0 +1,323 @@
+{
+  "info": {
+    "_postman_id": "8b148c3f-c68e-4d43-9892-74720e588147",
+    "name": "Products CRUD REST API",
+    "description": "Postman Collection v2.1.0 tracking all 5 endpoints of the FastAPI Products REST API with embedded status code assertion test scripts.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "product_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Create Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"Response contains valid product ID\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('id');",
+              "    pm.collectionVariables.set(\"product_id\", jsonData.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Wireless Mechanical Keyboard\",\n  \"description\": \"Compact 75% mechanical keyboard with RGB backlighting.\",\n  \"price\": 89.99,\n  \"in_stock\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/items",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All Products",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response is an array\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(Array.isArray(jsonData)).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/items?skip=0&limit=10",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items"
+          ],
+          "query": [
+            {
+              "key": "skip",
+              "value": "0"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Product by ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Product ID matches requested ID\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id.toString()).to.eql(pm.collectionVariables.get(\"product_id\").toString());",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/items/{{product_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items",
+            "{{product_id}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Product name and price updated correctly\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.name).to.eql(\"Wireless Mechanical Keyboard - Pro Edition\");",
+              "    pm.expect(jsonData.price).to.eql(99.99);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Wireless Mechanical Keyboard - Pro Edition\",\n  \"price\": 99.99,\n  \"in_stock\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/items/{{product_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items",
+            "{{product_id}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Confirmation message returned\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('message');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/items/{{product_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items",
+            "{{product_id}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Product by Invalid ID (Expect 404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found for invalid ID\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"Error detail message is present\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.detail).to.eql(\"Product not found\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/items/999999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items",
+            "999999"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Product by Invalid ID (Expect 404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found for invalid ID on PUT\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Non-existent Product\",\n  \"price\": 10.0\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/items/999999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items",
+            "999999"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Product by Invalid ID (Expect 404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found for invalid ID on DELETE\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/items/999999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items",
+            "999999"
+          ]
+        }
+      }
+    }
+  ]
+}
