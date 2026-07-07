@@ -1,5 +1,32 @@
+from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
+
+
+class UserCreate(BaseModel):
+    email: str = Field(..., min_length=3, description="User email address")
+    password: str = Field(..., min_length=6, description="User password")
+
+
+class UserLogin(BaseModel):
+    email: str = Field(..., description="User email address")
+    password: str = Field(..., description="User password")
+
+
+class UserResponse(BaseModel):
+    id: int
+    email: str
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
+class TokenData(BaseModel):
+    sub: Optional[str] = None
 
 
 class ProductBase(BaseModel):
@@ -22,4 +49,6 @@ class ProductUpdate(BaseModel):
 
 class ProductResponse(ProductBase):
     id: int
+    user_id: int
     model_config = ConfigDict(from_attributes=True)
+
