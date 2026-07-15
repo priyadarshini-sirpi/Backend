@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "8b148c3f-c68e-4d43-9892-74720e588147",
     "name": "Products CRUD REST API",
-    "description": "Postman Collection v2.1.0 tracking all 5 endpoints of the FastAPI Products REST API with embedded status code assertion test scripts.",
+    "description": "Postman Collection v2.1.0 tracking all endpoints of the FastAPI Products REST API, including Phase 3 Advanced Querying (filtering, search, sorting, and pagination) with embedded assertion test scripts.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -71,9 +71,12 @@
               "pm.test(\"Status code is 200 OK\", function () {",
               "    pm.response.to.have.status(200);",
               "});",
-              "pm.test(\"Response is an array\", function () {",
+              "pm.test(\"Response contains total, skip, limit, and items array\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(Array.isArray(jsonData)).to.be.true;",
+              "    pm.expect(jsonData).to.have.property('total');",
+              "    pm.expect(jsonData).to.have.property('skip');",
+              "    pm.expect(jsonData).to.have.property('limit');",
+              "    pm.expect(Array.isArray(jsonData.items)).to.be.true;",
               "});"
             ],
             "type": "text/javascript"
@@ -99,6 +102,312 @@
             {
               "key": "limit",
               "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Filter Products (category=fiction)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response contains items array\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(Array.isArray(jsonData.items)).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/items?category=fiction",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items"
+          ],
+          "query": [
+            {
+              "key": "category",
+              "value": "fiction"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Search Products (search=dragon)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response contains items array\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(Array.isArray(jsonData.items)).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/items?search=dragon",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items"
+          ],
+          "query": [
+            {
+              "key": "search",
+              "value": "dragon"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Sort Products Ascending (price)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response contains items sorted ascending by price\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(Array.isArray(jsonData.items)).to.be.true;",
+              "    for (var i = 1; i < jsonData.items.length; i++) {",
+              "        pm.expect(jsonData.items[i].price).to.be.at.least(jsonData.items[i-1].price);",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/items?sort_by=price&order=asc",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items"
+          ],
+          "query": [
+            {
+              "key": "sort_by",
+              "value": "price"
+            },
+            {
+              "key": "order",
+              "value": "asc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Sort Products Descending (price)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response contains items sorted descending by price\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(Array.isArray(jsonData.items)).to.be.true;",
+              "    for (var i = 1; i < jsonData.items.length; i++) {",
+              "        pm.expect(jsonData.items[i].price).to.be.at.most(jsonData.items[i-1].price);",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/items?sort_by=price&order=desc",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items"
+          ],
+          "query": [
+            {
+              "key": "sort_by",
+              "value": "price"
+            },
+            {
+              "key": "order",
+              "value": "desc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Combined Query (Filter + Search + Sort + Pagination)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response has total, skip, limit, items structure\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('total');",
+              "    pm.expect(jsonData).to.have.property('skip', 0);",
+              "    pm.expect(jsonData).to.have.property('limit', 10);",
+              "    pm.expect(Array.isArray(jsonData.items)).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/items?category=fiction&search=dragon&sort_by=price&order=desc&skip=0&limit=10",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items"
+          ],
+          "query": [
+            {
+              "key": "category",
+              "value": "fiction"
+            },
+            {
+              "key": "search",
+              "value": "dragon"
+            },
+            {
+              "key": "sort_by",
+              "value": "price"
+            },
+            {
+              "key": "order",
+              "value": "desc"
+            },
+            {
+              "key": "skip",
+              "value": "0"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Invalid Sort Field (sort_by=salary)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "pm.test(\"Error detail indicates invalid sort_by field\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.detail).to.eql(\"Invalid sort_by field.\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/items?sort_by=salary",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items"
+          ],
+          "query": [
+            {
+              "key": "sort_by",
+              "value": "salary"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Limit Greater Than 100 (limit=500)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 422 Unprocessable Entity due to max limit validation\", function () {",
+              "    pm.response.to.have.status(422);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/items?limit=500",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "items"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "500"
             }
           ]
         }

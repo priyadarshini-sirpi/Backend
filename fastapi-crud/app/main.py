@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
@@ -85,19 +85,35 @@ def create_item(
 
 @app.get(
     "/items",
-    response_model=List[schemas.ProductResponse],
+    response_model=schemas.ProductPaginatedResponse,
     status_code=status.HTTP_200_OK,
-    summary="Get all products",
+    summary="Get all products with advanced querying (filtering, search, sorting, and pagination)",
 )
 def read_items(
     skip: int = Query(0, ge=0, description="Number of records to skip for pagination"),
     limit: int = Query(
-        10, ge=1, le=100, description="Maximum number of records to return"
+        10, ge=0, le=100, description="Maximum number of records to return (max 100)"
     ),
+    category: Optional[str] = Query(None, description="Exact match filter by category"),
+    min_price: Optional[float] = Query(None, description="Minimum price filter (price >= min_price)"),
+    max_price: Optional[float] = Query(None, description="Maximum price filter (price <= max_price)"),
+    search: Optional[str] = Query(None, description="Case-insensitive partial search across text fields"),
+    sort_by: Optional[str] = Query(None, description="Field to sort by (e.g. price, created_at)"),
+    order: str = Query("desc", description="Sort order: asc or desc"),
     db: Session = Depends(get_db),
-) -> List[models.Product]:
-    """Retrieve a list of products with optional pagination (skip and limit)."""
-    return crud.get_products(db=db, skip=skip, limit=limit)
+) -> Dict[str, Any]:
+    """Retrieve a paginated list of products with optional filtering, searching, and sorting."""
+    return crud.get_products(
+        db=db,
+        skip=skip,
+        limit=limit,
+        category=category,
+        min_price=min_price,
+        max_price=max_price,
+        search=search,
+        sort_by=sort_by,
+        order=order,
+    )
 
 
 @app.get(

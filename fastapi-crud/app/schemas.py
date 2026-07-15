@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -50,5 +50,14 @@ class ProductUpdate(BaseModel):
 class ProductResponse(ProductBase):
     id: int
     user_id: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProductPaginatedResponse(BaseModel):
+    total: int = Field(..., description="Total number of records matching criteria before pagination")
+    skip: int = Field(..., description="Number of records skipped")
+    limit: int = Field(..., description="Maximum number of records returned")
+    items: List[ProductResponse] = Field(..., description="List of matching products")
+
     model_config = ConfigDict(from_attributes=True)
 
